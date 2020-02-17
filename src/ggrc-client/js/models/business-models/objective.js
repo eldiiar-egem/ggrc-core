@@ -4,13 +4,8 @@
 */
 
 import Cacheable from '../cacheable';
-import UniqueTitle from '../mixins/unique-title';
-import CaUpdate from '../mixins/ca-update';
-import AccessControlList from '../mixins/access-control-list';
-import BaseNotifications from '../mixins/notifications/base-notifications';
 import RelatedAssessmentsLoader from '../mixins/related-assessments-loader';
-import Stub from '../stub';
-import Reviewable from '../mixins/reviewable';
+import ChangeableExternally from '../mixins/changeable-externally';
 
 export default Cacheable.extend({
   root_object: 'objective',
@@ -20,23 +15,12 @@ export default Cacheable.extend({
   title_plural: 'Objectives',
   findAll: 'GET /api/objectives',
   findOne: 'GET /api/objectives/{id}',
-  create: 'POST /api/objectives',
-  update: 'PUT /api/objectives/{id}',
-  destroy: 'DELETE /api/objectives/{id}',
   mixins: [
-    UniqueTitle,
-    CaUpdate,
-    AccessControlList,
-    BaseNotifications,
     RelatedAssessmentsLoader,
-    Reviewable,
+    ChangeableExternally,
   ],
   is_custom_attributable: true,
   isRoleable: true,
-  attributes: {
-    context: Stub,
-    modified_by: Stub,
-  },
   tree_view_options: {
     attr_list: Cacheable.attr_list.concat([
       {
@@ -72,24 +56,5 @@ export default Cacheable.extend({
   sub_tree_view_options: {
     default_filter: ['Control'],
   },
-  defaults: {
-    status: 'Draft',
-  },
   statuses: ['Draft', 'Deprecated', 'Active'],
-}, {
-  define: {
-    title: {
-      value: '',
-      validate: {
-        required: true,
-        validateUniqueTitle: true,
-      },
-    },
-    _transient_title: {
-      value: '',
-      validate: {
-        validateUniqueTitle: true,
-      },
-    },
-  },
-});
+}, {});
