@@ -85,7 +85,7 @@
                 </div>
                 <div class="hidden-fields-area">
                   <div class="row-fluid wrap-row">
-                    <div class="span3">
+                    <div class="span4">
                       <div class="action-toolbar-container">
                         <div class="action-toolbar">
                           <h6 class="action-toolbar__header">
@@ -97,23 +97,7 @@
                         </p>
                       </div>
                     </div>
-                    <div class="span3">
-                      <div class="action-toolbar-container">
-                        <div class="action-toolbar">
-                          <h6 class="action-toolbar__header">
-                            Kind/Type
-                          </h6>
-                        </div>
-                        {{#if kind}}
-                          <p>
-                            {{kind}}
-                          </p>
-                        {{else}}
-                          <span class="empty-message">None</span>
-                        {{/if}}
-                      </div>
-                    </div>
-                    <div class="span3">
+                    <div class="span4">
                       <external-attribute
                         instance:from="instance"
                         title:from="'Effective Date'"
@@ -128,35 +112,41 @@
                         {{/if}}
                       </external-attribute>
                     </div>
-                    <div class="span3">
+                    <div class="span4">
                       <div class="action-toolbar-container">
                         <div class="action-toolbar">
                           <h6 class="action-toolbar__header">
                             Last Deprecated Date
                           </h6>
                         </div>
-                        {{#if end_date}}
+                        {{#if last_deprecated_date}}
                           <p>
-                            {{localize_date end_date}}
+                            {{localize_date last_deprecated_date}}
                           </p>
                         {{else}}
-                          <span class="empty-message">None</span>
+                          {{#if end_date}}
+                            <p>
+                              {{localize_date end_date}}
+                            </p>
+                          {{else}}
+                            <span class="empty-message">None</span>
+                          {{/if}}
                         {{/if}}
                       </div>
                     </div>
                   </div>
-                </div>
+                </div><!-- hidden-fields-area end -->
               </div><!-- custom-attr-wrap end -->
 
               {{> custom_attributes/info.stache}}
             </div>
             {{^if isSnapshot}}
-            <div class="info-pane__sidebar">
-              <div class="info-pane__section-title">Responses/Comments</div>
-              <comments-section
-                class="flex-box flex-col"
-                instance:from="instance" />
-            </div>
+              <div class="info-pane__sidebar">
+                <div class="info-pane__section-title">Responses/Comments</div>
+                <comments-section
+                  class="flex-box flex-col"
+                  instance:from="instance" />
+              </div>
             {{/if}}
           </div>
         </tab-panel>
@@ -177,9 +167,8 @@
       </tab-container>
     </div><!-- tier-content end -->
   </section>
-
   {{#if is_info_widget}}
-    <info-pane-footer
+    <info-pane-footer 
       createdAt:from="instance.created_at"
       modifiedAt:from="instance.updated_at"
       modifiedBy:from="instance.modified_by" />
