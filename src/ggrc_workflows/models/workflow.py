@@ -299,6 +299,18 @@ class Workflow(roleable.Roleable,
                        "on workflow with '{}' status".format(self.status))
     return value
 
+  @orm.validates('recurrences')
+  def validate_recurrences(self, _, value):
+    # pylint: disable=unused-argument
+    """Validate recurrences field for Workflow.
+
+    It's not allowed to change recurrences flag for archived workflow.
+    """
+    if self.workflow_archived and value:
+      raise ValueError("recurrences value isn't changeble "
+                       "for archived workflow")
+    return value
+
   @builder.simple_property
   def workflow_state(self):
     return WorkflowState.get_workflow_state(self.cycles)

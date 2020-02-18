@@ -248,6 +248,53 @@ class TestWorkflow(TestCase):
       self.assertEqual(all_models.Workflow.INACTIVE, workflow.status)
 
   @ddt.data(
+      (
+          # One cycle should be created
+          datetime.date(2017, 8, 10),
+          datetime.date(2017, 8, 14),
+          all_models.Workflow.ACTIVE
+      ),
+      (
+          # No cycles should be created
+          datetime.date(2017, 8, 11),
+          datetime.date(2017, 8, 14),
+          all_models.Workflow.INACTIVE
+      ),
+  )
+  @ddt.unpack
+  def test_unarchive_workflow(self, tgt_start_date, tgt_end_date, wf_status):
+    """Archived workflow should prohibit activation"""
+    with freezegun.freeze_time("2017-08-10"):
+      with glob_factories.single_commit():
+        workflow = factories.WorkflowFactory(
+            title="This is a test WF",
+            unit=all_models.Workflow.WEEK_UNIT,
+            repeat_every=1)
+        factories.TaskGroupTaskFactory(
+            task_group=factories.TaskGroupFactory(
+                workflow=workflow,
+                context=glob_factories.ContextFactory(),
+            ),
+            start_date=tgt_start_date,
+            end_date=tgt_end_date,
+        )
+      wf_id = workflow.id
+      self.generator.activate_workflow(workflow)
+      workflow = all_models.Workflow.query.get(wf_id)
+      self.assertEqual(all_models.Workflow.ACTIVE, workflow.status)
+      self.assertIs(workflow.recurrences, True)
+      # Archive workflow
+      self.generator.modify_workflow(workflow, {'recurrences': False})
+      workflow = all_models.Workflow.query.get(wf_id)
+      self.assertIs(workflow.recurrences, False)
+      self.assertEqual(wf_status, workflow.status)
+      # Unarchive workflow
+      response, _ = self.generator.modify_workflow(workflow,
+                                                   {'recurrences': True})
+      self.assert400(response)
+      self.assertIs(workflow.recurrences, False)
+
+  @ddt.data(
       ('One time workflow', None, None),
       ('Daily workflow', all_models.Workflow.DAY_UNIT, 1),
       ('Weekly workflow', all_models.Workflow.WEEK_UNIT, 1),
